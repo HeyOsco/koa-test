@@ -20,7 +20,11 @@ const router = new Router();
 
 // Initialize the S3 client
 const s3Client = new S3Client({ 
-  region: "test-region", // TODO: UPDATE
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
+  }
 });
 
 // --- ROUTES --- ///
@@ -32,16 +36,12 @@ router.get('/health', async (ctx) => {
 
 // File Upload Endpoint
 router.post('/upload', async (ctx) => {
-  console.log(ctx.request.files)
   const file = ctx.request.files.file; // access the uploaded file from the form
-  console.log(file)
   const { filepath, originalFilename } = file; // get file path and name
-  console.log("path:" + filepath)
-  console.log("name:" + originalFilename)
 
   // Set upload parameters for S3
   const uploadParams = {
-    Bucket: "test-bucket", // TODO: UPDATE
+    Bucket: process.env.AWS_BUCKET_NAME,
     Key: originalFilename, 
     Body: createReadStream(filepath), // use createReadStream to read file data from the local path
   };
